@@ -7,7 +7,7 @@
     <script>
     // Example by https://twitter.com/awapblog
 
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create });
+var game = new Phaser.Game(350, 400, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create });
 
 var GEM_SIZE = 64;
 var GEM_SPACING = 2;
@@ -78,19 +78,19 @@ function releaseGem(selectedGem) {
 }
 
 function slideGem(pointer, x, y, fromClick) {
-
-    // check if a selected gem should be moved and do it
-
-    if (selectedGem && pointer.isDown)
+  if (selectedGem && pointer.isDown && !fromClick)
+  {
+    var cursorGemPosX = getGemPos(x);
+    var cursorGemPosY = getGemPos(y);
+    if(checkIfGemCanBeMovedHere(selectedGem.posX, selectedGem.posY, cursorGemPosX, cursorGemPosY))
     {
-        var cursorGemPosX = getGemPos(x);
-        var cursorGemPosY = getGemPos(y);
-        gems.bringToTop(selectedGem); // bring dragging gem to top
-        selectedGemTween = tweenGemPos(selectedGem, cursorGemPosX, cursorGemPosY);
-        tempShiftedGem = getGem(cursorGemPosX, cursorGemPosY);
+        gems.bringToTop(selectedGem); // bring selectedGem to top
+        tempShiftedGem = getGem(cursorGemPosX, cursorGemPosY); // Get under-gem
+        selectedGemTween = tweenGemPos(selectedGem, cursorGemPosX, cursorGemPosY); // selected slides over under-gem
         underGemTween = tweenGemPos(tempShiftedGem, selectedGem.posX , selectedGem.posY);
         swapGemPosition(selectedGem, tempShiftedGem);
     }
+  }
 }
 
 // fill the screen with as many gems as possible
@@ -178,22 +178,22 @@ function randomizeGemColor(gem) {
 // gems can only be moved 1 square up/down or left/right
 function checkIfGemCanBeMovedHere(fromPosX, fromPosY, toPosX, toPosY) {
 
-    // if (toPosX < 0 || toPosX >= BOARD_COLS || toPosY < 0 || toPosY >= BOARD_ROWS)
-    // {
-    //     return false;
-    // }
+    if (toPosX < 0 || toPosX >= BOARD_COLS || toPosY < 0 || toPosY >= BOARD_ROWS)
+    {
+        return false;
+    }
 
-    // if (fromPosX === toPosX && fromPosY >= toPosY - 1 && fromPosY <= toPosY + 1)
-    // {
-    //     return true;
-    // }
+    if (fromPosX === toPosX && fromPosY >= toPosY - 1 && fromPosY <= toPosY + 1)
+    {
+        return true;
+    }
 
-    // if (fromPosY === toPosY && fromPosX >= toPosX - 1 && fromPosX <= toPosX + 1)
-    // {
-    //     return true;
-    // }
+    if (fromPosY === toPosY && fromPosX >= toPosX - 1 && fromPosX <= toPosX + 1)
+    {
+        return true;
+    }
 
-    // return false;
+    return false;
 }
 
 // count how many gems of the same color lie in a given direction
