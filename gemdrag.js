@@ -14,6 +14,7 @@ GD.DIRECTIONS = null;
 GD.POSITIONS_OF_PERPENDICULAR_RUNS = null;
 GD.TESTED_GEMS = {};
 GD.FOUND_RUNS = {};
+GD.markers = [];
 
 GD.initialize = function(){
 
@@ -25,6 +26,11 @@ GD.initialize = function(){
       GD.GAME.input.addMoveCallback(GD.slideGem, GD);
       GD.GEMS = GD.GAME.add.group();
       GD.spawnBoard();
+    },
+    'render':function(){
+      GD.markers.forEach(function(marker){
+        GD.GAME.debug.geom(marker,'rgba(255,255,255, 0.5)');
+      });
     }
   });
 };
@@ -47,6 +53,7 @@ GD.spawnBoard = function(){
 GD.searchForMatches = function() {
   GD.FOUND_RUNS = {}; // reset for every search.
   GD.TESTED_GEMS = {}; // reset for every search.
+  GD.markers = [];
 
   console.log('==========================')
   console.log('beginning search for matching gem combos.')
@@ -71,12 +78,13 @@ GD.searchForMatches = function() {
 
 GD.follow = function(gem, direction) {
   if(GD.TESTED_GEMS[gem.id]){
-    coneole.log('loop path found');
+    console.log('loop path found');
     return GD.GEMS_IN_ENTIRE_PATH; // the path has looped around.
   }
   GD.TESTED_GEMS[gem.id]=true;
   GD.GEMS_IN_ENTIRE_PATH.push(gem);
 
+  GD.markers.push(new Phaser.Rectangle(gem.posX*GD.GEM_SIZE_SPACED, gem.posY*GD.GEM_SIZE_SPACED, GD.GEM_SIZE, GD.GEM_SIZE));
   var _nextGemToCheck = GD.oneGemOver(gem, direction);
 
   GD.findPerpendicularStarts(gem, direction); //check for other run-starts
@@ -215,27 +223,27 @@ GD.visibleRuns = function(gem){
 };
 
 GD.findPerpendicularStarts = function(gem, direction){
-  // console.log('looking for perp starts from ', gem);
+
   var _found_directions = [];
   switch (direction){
     case 'up':
     case 'down':
       var left = GD.countRun(gem,'left');
       var right = GD.countRun(gem,'right');
-      if(left>1){ _found_directions.push('left'); }
-      if(right>1){ _found_directions.push('right'); }
+      if(left>1|| (right>1 && left>0)){ _found_directions.push('left'); }
+      if(right>1|| (left>1 && right>0)){ _found_directions.push('right'); }
       break;
     case 'left':
     case 'right':
       var up = GD.countRun(gem,'up');
       var down = GD.countRun(gem,'down');
-      if(up>1){ _found_directions.push('up'); }
-      if(down>1){ _found_directions.push('down'); }
+      if(up>1|| (down>1 && up>0)){ _found_directions.push('up'); }
+      if(down>1 || (up>1 && down>0)){ _found_directions.push('down'); }
       break;
   }
 
-  if(_found_directions.length>0){
-    // console.log('directions found', _found_directions)
+
+  if(_found_directions.length > 0){
     return GD.POSITIONS_OF_PERPENDICULAR_RUNS.push({ 'gem':gem, 'directions': _found_directions });
   }
   return false;
