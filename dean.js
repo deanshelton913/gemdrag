@@ -220,5 +220,3 @@ _all_paths.forEach(function(obj){
   i++;
 });
 console.log('==========================')
-
-
