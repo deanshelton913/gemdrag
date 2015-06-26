@@ -62,11 +62,15 @@ GD.searchForMatches = function() {
     var _directions = GD.visibleRuns(gem);
     GD.POSITIONS_OF_PERPENDICULAR_RUNS = [];
     for(var n=0; n < _directions.length; n++) {
-      if(GD.TESTED_GEMS[GD.oneGemOver(gem,_directions[n]).id] === undefined){
-        console.log('- run found, beginning at gem: (x:'+gem.posX+',y:'+gem.posY+') and going '+ _directions[n]);
-        var _path = GD.follow(gem, _directions[n]);
-        var _color = gem.frame;
-        GD.FOUND_RUNS[_color] = (GD.FOUND_RUNS[_color]||[]).concat(_path);
+
+      var oneGemOver = GD.oneGemOver(gem,_directions[n]);
+      if(oneGemOver !==  undefined){
+        if(GD.TESTED_GEMS[oneGemOver.id] === undefined){
+          console.log('- run found, beginning at gem: (x:'+gem.posX+',y:'+gem.posY+') and going '+ _directions[n]);
+          var _path = GD.follow(gem, _directions[n]);
+          var _color = gem.frame;
+          GD.FOUND_RUNS[_color] = (GD.FOUND_RUNS[_color]||[]).concat(_path);
+        }
       }
     }
   });
@@ -88,7 +92,7 @@ GD.follow = function(gem, direction) {
   var _nextGemToCheck = GD.oneGemOver(gem, direction);
 
   GD.findPerpendicularStarts(gem, direction); //check for other run-starts
-  if(_nextGemToCheck !== null && gem.frame === _nextGemToCheck.frame){ //  next gem has same color
+  if(_nextGemToCheck !== undefined && gem.frame === _nextGemToCheck.frame){ //  next gem has same color
     return GD.follow(_nextGemToCheck, direction); // recurse
   } else {// end of run.
 
@@ -205,7 +209,9 @@ GD.countSameColorGems = function(startGem, moveX, moveY) {
 };
 
 GD.getGem = function(posX, posY){
-
+  if((posX<0||posX>GD.BOARD_COLS) || (posY < 0 || posY > GD.BOARD_ROWS)){
+    return undefined;
+  }
   return GD.GEMS.iterate("id", GD.calcGemId(posX, posY), Phaser.Group.RETURN_CHILD);
 };
 
@@ -287,6 +293,11 @@ GD.oneGemOver = function(gem, direction){
       new_y = gem.posY;
     break;
   }
+
+  if(new_x >= GD.BOARD_COLS || new_y >= GD.BOARD_ROWS){
+    return undefined;
+  }
+
   return GD.getGem(new_x,new_y);
 };
 
