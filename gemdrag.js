@@ -59,7 +59,7 @@ GD.searchForMatches = function() {
   console.log('beginning search for matching gem combos.')
   GD.GEMS.forEach(function(gem) {
     GD.GEMS_IN_ENTIRE_PATH = [];
-    var _directions = GD.visibleRuns(gem);
+    var _directions = GD.visibleRuns(gem); // TODO: should consider opposite direction of current run
     GD.POSITIONS_OF_PERPENDICULAR_RUNS = [];
     for(var n=0; n < _directions.length; n++) {
 
@@ -196,8 +196,8 @@ GD.countSameColorGems = function(startGem, moveX, moveY) {
   var curY = startGem.posY + moveY;
   var count = 0;
 
-  // while (curX >= 0 && curY >= 0 && curX < BOARD_COLS && curY < BOARD_ROWS && getGemColor(getGem(curX, curY)) === getGemColor(startGem))
-  while (GD.getGem(curX,curY) && GD.getGem(curX,curY).frame === startGem.frame)
+  while (curX >= 0 && curY >= 0 && curX < GD.BOARD_COLS && curY < GD.BOARD_ROWS && GD.getGem(curX, curY).frame === startGem.frame)
+  // while (GD.getGem(curX,curY) && GD.getGem(curX,curY).frame === startGem.frame)
   {
     count++;
     curX += moveX;
